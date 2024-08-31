@@ -1,3 +1,4 @@
+
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { GlobalContext } from "../../context";
@@ -13,19 +14,23 @@ export default function Details() {
 
   useEffect(() => {
     async function getRecipeDetails() {
-      const response = await fetch(
-        `https://forkify-api.herokuapp.com/api/v2/recipes/${id}`
-      );
-      const data = await response.json();
+      try {
+        const response = await fetch(
+          `https://forkify-api.herokuapp.com/api/v2/recipes/${id}`
+        );
+        const data = await response.json();
 
-      console.log(data);
-      if (data?.data) {
-        setRecipeDetailsData(data?.data);
+        console.log(data);
+        if (data?.data) {
+          setRecipeDetailsData(data?.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch recipe details:", error);
       }
     }
 
     getRecipeDetails();
-  }, []);
+  }, [id, setRecipeDetailsData]);
 
   console.log(recipeDetailsData, "recipeDetailsData");
 
@@ -35,6 +40,7 @@ export default function Details() {
         <div className="h-96 overflow-hidden rounded-xl group">
           <img
             src={recipeDetailsData?.recipe?.image_url}
+            alt={recipeDetailsData?.recipe?.title || "Recipe image"} // Add meaningful alt text
             className="w-full h-full object-cover block group-hover:scale-105 duration-300"
           />
         </div>
@@ -63,8 +69,8 @@ export default function Details() {
             Ingredients:
           </span>
           <ul className="flex flex-col gap-3">
-            {recipeDetailsData?.recipe?.ingredients.map((ingredient) => (
-              <li>
+            {recipeDetailsData?.recipe?.ingredients.map((ingredient, index) => (
+              <li key={index}>
                 <span className="text-2xl font-semibold text-black">
                   {ingredient.quantity} {ingredient.unit}
                 </span>
